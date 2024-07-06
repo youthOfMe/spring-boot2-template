@@ -1,8 +1,10 @@
 package com.yangge.springbootinit.controller;
 
+import com.yangge.springbootinit.annotation.AuthCheck;
 import com.yangge.springbootinit.common.BaseResponse;
 import com.yangge.springbootinit.common.ErrorCode;
 import com.yangge.springbootinit.common.ResultUtils;
+import com.yangge.springbootinit.constant.UserConstant;
 import com.yangge.springbootinit.exception.BusinessException;
 import com.yangge.springbootinit.model.dto.user.UserLoginRequest;
 import com.yangge.springbootinit.model.dto.user.UserRegisterRequest;
@@ -88,6 +90,7 @@ public class UserController {
      * @return
      */
     @GetMapping("/get/login")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<LoginUserVO> getLoginUser(HttpServletRequest request) {
         User user = userService.getLoginUser(request);
         return ResultUtils.success(userService.getLoginUserVO(user));
