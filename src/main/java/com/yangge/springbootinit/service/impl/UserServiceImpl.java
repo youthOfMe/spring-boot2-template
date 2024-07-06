@@ -8,6 +8,7 @@ import com.yangge.springbootinit.exception.BusinessException;
 import com.yangge.springbootinit.mapper.UserMapper;
 import com.yangge.springbootinit.model.entity.User;
 import com.yangge.springbootinit.model.vo.LoginUserVO;
+import com.yangge.springbootinit.model.vo.UserVO;
 import com.yangge.springbootinit.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -143,6 +144,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return currentUser;
     }
 
+    @Override
+    public UserVO getUserVO(User user) {
+        if (user == null) {
+            return null;
+        }
+        UserVO userVO = new UserVO();
+        BeanUtils.copyProperties(user, userVO);
+        return userVO;
+    }
+
     /**
      * 获取返回登录用户的响应对象
      * @param user
@@ -157,6 +168,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         BeanUtils.copyProperties(user, loginUserVO);
         return loginUserVO;
     }
+
 
 
 

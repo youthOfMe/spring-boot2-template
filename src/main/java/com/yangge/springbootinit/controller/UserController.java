@@ -14,6 +14,7 @@ import com.yangge.springbootinit.model.dto.user.UserRegisterRequest;
 import com.yangge.springbootinit.model.dto.user.UserUpdateRequest;
 import com.yangge.springbootinit.model.entity.User;
 import com.yangge.springbootinit.model.vo.LoginUserVO;
+import com.yangge.springbootinit.model.vo.UserVO;
 import com.yangge.springbootinit.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -168,5 +169,36 @@ public class UserController {
         return ResultUtils.success(true);
     }
 
+    /**
+     * 根据 id 获取用户 (仅管理员)
+     *
+     * @param id
+     * @param request
+     * @return
+     */
+    @GetMapping("/get")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<User> getUserById(long id, HttpServletRequest request) {
+        if (id <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User user = userService.getById(id);
+        ThrowUtils.throwIf(user == null, ErrorCode.NOT_LOGIN_ERROR);
+        return ResultUtils.success(user);
+    }
+
+    /**
+     * 根据ID获取包装类
+     *
+     * @param id
+     * @param request
+     * @return
+     */
+    @GetMapping("/get/vo")
+    public BaseResponse<UserVO> getUserVOById(long id, HttpServletRequest request) {
+        BaseResponse<User> response = getUserById(id, request);
+        User user = response.getData();
+        return ResultUtils.success(userService.getUserVO(user));
+    }
 
 }

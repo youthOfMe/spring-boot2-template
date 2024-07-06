@@ -3,6 +3,7 @@ package com.yangge.springbootinit.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.yangge.springbootinit.model.entity.User;
 import com.yangge.springbootinit.model.vo.LoginUserVO;
+import com.yangge.springbootinit.model.vo.UserVO;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -56,5 +57,11 @@ public interface UserService extends IService<User> {
      */
     LoginUserVO getLoginUserVO(User user);
 
-
+    /**
+     * 获取脱敏的用户信息
+     *
+     * @param user
+     * @return
+     */
+    UserVO getUserVO(User user);
 }
