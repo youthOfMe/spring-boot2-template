@@ -2,6 +2,7 @@ package com.yangge.springbootinit.controller;
 
 import com.yangge.springbootinit.annotation.AuthCheck;
 import com.yangge.springbootinit.common.BaseResponse;
+import com.yangge.springbootinit.common.DeleteRequest;
 import com.yangge.springbootinit.common.ErrorCode;
 import com.yangge.springbootinit.common.ResultUtils;
 import com.yangge.springbootinit.constant.UserConstant;
@@ -129,5 +130,20 @@ public class UserController {
         return ResultUtils.success(user.getId());
     }
 
-    // public BaseResponse<Boolean> deleteUser(@RequestBody)
+    /**
+     * 删除用户
+     *
+     * @param deleteRequest
+     * @param request
+     * @return
+     */
+    @PostMapping("/delete")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Boolean> deleteUser(@RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
+        if (deleteRequest == null || deleteRequest.getId() <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        boolean result = userService.removeById(deleteRequest.getId());
+        return ResultUtils.success(result);
+    }
 }
