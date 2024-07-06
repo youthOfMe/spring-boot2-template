@@ -11,6 +11,7 @@ import com.yangge.springbootinit.exception.ThrowUtils;
 import com.yangge.springbootinit.model.dto.user.UserAddRequest;
 import com.yangge.springbootinit.model.dto.user.UserLoginRequest;
 import com.yangge.springbootinit.model.dto.user.UserRegisterRequest;
+import com.yangge.springbootinit.model.dto.user.UserUpdateRequest;
 import com.yangge.springbootinit.model.entity.User;
 import com.yangge.springbootinit.model.vo.LoginUserVO;
 import com.yangge.springbootinit.service.UserService;
@@ -146,4 +147,26 @@ public class UserController {
         boolean result = userService.removeById(deleteRequest.getId());
         return ResultUtils.success(result);
     }
+
+    /**
+     * 更新用户
+     *
+     * @param userUpdateRequest
+     * @param request
+     * @return
+     */
+    @PostMapping("/update")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Boolean> updateUser(@RequestBody UserUpdateRequest userUpdateRequest, HttpServletRequest request) {
+        if (userUpdateRequest == null || userUpdateRequest.getId() == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User user = new User();
+        BeanUtils.copyProperties(userUpdateRequest, user);
+        boolean result = userService.updateById(user);
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+        return ResultUtils.success(true);
+    }
+
+
 }
