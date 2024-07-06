@@ -6,6 +6,8 @@ import com.yangge.springbootinit.common.ErrorCode;
 import com.yangge.springbootinit.common.ResultUtils;
 import com.yangge.springbootinit.constant.UserConstant;
 import com.yangge.springbootinit.exception.BusinessException;
+import com.yangge.springbootinit.exception.ThrowUtils;
+import com.yangge.springbootinit.model.dto.user.UserAddRequest;
 import com.yangge.springbootinit.model.dto.user.UserLoginRequest;
 import com.yangge.springbootinit.model.dto.user.UserRegisterRequest;
 import com.yangge.springbootinit.model.entity.User;
@@ -13,6 +15,8 @@ import com.yangge.springbootinit.model.vo.LoginUserVO;
 import com.yangge.springbootinit.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -22,6 +26,8 @@ import javax.servlet.http.HttpServletRequest;
 @RequestMapping("/user")
 @Slf4j
 public class UserController {
+
+    public static final String SALT = "yangge";
 
     @Resource
     private UserService userService;
@@ -90,7 +96,6 @@ public class UserController {
      * @return
      */
     @GetMapping("/get/login")
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<LoginUserVO> getLoginUser(HttpServletRequest request) {
         User user = userService.getLoginUser(request);
         return ResultUtils.success(userService.getLoginUserVO(user));
@@ -98,5 +103,31 @@ public class UserController {
 
     // 增删改查
 
-    //
+    // region 增删改查
+
+    /**
+     * 创建用户
+     *
+     * @param userAddRequest
+     * @param request
+     * @return
+     */
+    @PostMapping("/add")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Long> addUser(@RequestBody UserAddRequest userAddRequest, HttpServletRequest request) {
+        if (userAddRequest == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User user = new User();
+        BeanUtils.copyProperties(userAddRequest, user);
+        // 默认密码 12345678
+        String defaultPassword = "12345678";
+        String encryptPassword = DigestUtils.md5DigestAsHex((SALT + defaultPassword).getBytes());
+        user.setUserPassword(encryptPassword);
+        boolean result = userService.save(user);
+        ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+        return ResultUtils.success(user.getId());
+    }
+
+    // public BaseResponse<Boolean> deleteUser(@RequestBody)
 }
