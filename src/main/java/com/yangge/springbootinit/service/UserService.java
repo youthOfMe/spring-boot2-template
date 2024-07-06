@@ -2,6 +2,9 @@ package com.yangge.springbootinit.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.yangge.springbootinit.model.entity.User;
+import com.yangge.springbootinit.model.vo.LoginUserVO;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
 * @author 20406
@@ -19,4 +22,21 @@ public interface UserService extends IService<User> {
      * @return
      */
     long userRegister(String userAccount, String userPassword, String checkPassword);
+
+    /**
+     * 用户登录
+     *
+     * @param userAccount
+     * @param userPassword
+     * @param request
+     * @return
+     */
+    LoginUserVO userLogin(String userAccount, String userPassword, HttpServletRequest request);
+
+    /**
+     * 获取脱敏的已登录用户信息
+     *
+     * @return
+     */
+    LoginUserVO getLoginUserVO(User user);
 }
