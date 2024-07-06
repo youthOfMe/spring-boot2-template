@@ -1,5 +1,6 @@
 package com.yangge.springbootinit.controller;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.yangge.springbootinit.annotation.AuthCheck;
 import com.yangge.springbootinit.common.BaseResponse;
 import com.yangge.springbootinit.common.DeleteRequest;
@@ -8,10 +9,7 @@ import com.yangge.springbootinit.common.ResultUtils;
 import com.yangge.springbootinit.constant.UserConstant;
 import com.yangge.springbootinit.exception.BusinessException;
 import com.yangge.springbootinit.exception.ThrowUtils;
-import com.yangge.springbootinit.model.dto.user.UserAddRequest;
-import com.yangge.springbootinit.model.dto.user.UserLoginRequest;
-import com.yangge.springbootinit.model.dto.user.UserRegisterRequest;
-import com.yangge.springbootinit.model.dto.user.UserUpdateRequest;
+import com.yangge.springbootinit.model.dto.user.*;
 import com.yangge.springbootinit.model.entity.User;
 import com.yangge.springbootinit.model.vo.LoginUserVO;
 import com.yangge.springbootinit.model.vo.UserVO;
@@ -24,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 @RestController
 @RequestMapping("/user")
@@ -201,6 +200,43 @@ public class UserController {
         return ResultUtils.success(userService.getUserVO(user));
     }
 
-    // public BaseResponse<Page<User>> listUserByPage(@RequestBody )
+    /**
+     * 分页获取用户封装列表 (仅管理员)
+     *
+     * @param userQueryRequest
+     * @param request
+     * @return
+     */
+    @PostMapping("/list/page")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    public BaseResponse<Page<User>> listUserByPage(@RequestBody UserQueryRequest userQueryRequest, HttpServletRequest request) {
+        long current = userQueryRequest.getCurrent();
+        long size = userQueryRequest.getPageSize();
+        Page<User> userPage = userService.page(new Page<>(current, size), userService.getQueryWrapper(userQueryRequest));
+        return ResultUtils.success(userPage);
+    }
+
+    /**
+     * 分页获取用户封装列表
+     *
+     * @param userQueryRequest
+     * @param request
+     * @return
+     */
+    @PostMapping("/list/page/vo")
+    public BaseResponse<Page<UserVO>> listUserVOByPage(@RequestBody UserQueryRequest userQueryRequest, HttpServletRequest request) {
+        if (userQueryRequest == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        long current = userQueryRequest.getCurrent();
+        long size = userQueryRequest.getPageSize();
+        // 限制爬虫
+        ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
+        Page<User> userPage = userService.page(new Page<>(current, size), userService.getQueryWrapper(userQueryRequest));
+        Page<UserVO> userVOPage = new Page<>(current, size, userPage.getTotal());
+        List<UserVO> userVO = userService.getUserVO(userPage.getRecords());
+        userVOPage.setRecords(userVO);
+        return ResultUtils.success(userVOPage);
+    }
 
 }

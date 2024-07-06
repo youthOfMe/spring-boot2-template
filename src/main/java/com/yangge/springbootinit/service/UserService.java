@@ -1,11 +1,14 @@
 package com.yangge.springbootinit.service;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.yangge.springbootinit.model.dto.user.UserQueryRequest;
 import com.yangge.springbootinit.model.entity.User;
 import com.yangge.springbootinit.model.vo.LoginUserVO;
 import com.yangge.springbootinit.model.vo.UserVO;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
 * @author 20406
@@ -64,4 +67,20 @@ public interface UserService extends IService<User> {
      * @return
      */
     UserVO getUserVO(User user);
+
+    /**
+     * 获取脱敏的用户信息
+     *
+     * @param userList
+     * @return
+     */
+    List<UserVO> getUserVO(List<User> userList);
+
+    /**
+     * 获取查询条件
+     *
+     * @param userQueryRequest
+     * @return
+     */
+    Wrapper<User> getQueryWrapper(UserQueryRequest userQueryRequest);
 }
